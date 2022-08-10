@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using APIExcelValidator.Abstractions;
+using APIExcelValidator.Implementations;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +29,7 @@ namespace APIExcelValidator
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddScoped<IFileValidator, ExcelValidator>();
             
             // Add dependency for dotnet core to avoid NotSupportedException
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
