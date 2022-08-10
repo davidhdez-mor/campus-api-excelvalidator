@@ -23,12 +23,12 @@ namespace APIExcelValidator.Controllers
         
         // POST file api/ExcelValidator
         [HttpPost]
-        public async Task<IActionResult> OnLoadFile(IFormFile excelFile)
+        public async Task<IActionResult> OnLoadFile(IFormFile file)
         {
-            IFormFile file = excelFile; // HttpContext.Request.Form.Files.FirstOrDefault();
+            // IFormFile file = HttpContext.Request.Form.Files.FirstOrDefault();
             
-            if (file is null || file.Length <= 0)
-                return BadRequest("Ningun archivo proporcioando");
+            if (file is null)
+                return BadRequest("No se envio nada o el archivo esta vacio");
             
             if (!_fileValidator.Validate(file.OpenReadStream()))
                 return BadRequest("El archivo no es una hoja de calculo");
@@ -39,7 +39,7 @@ namespace APIExcelValidator.Controllers
             if (!((IFieldValidator) _fileValidator).ValidateNumbers(file.OpenReadStream()))
                 return BadRequest("Error en la columna x y la fila y: no es un numero");
 
-            return Ok(file.Length);
+            return Ok($"El archivo {file.Name} es valido");
         }
     }
 }
