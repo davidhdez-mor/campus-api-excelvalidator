@@ -29,6 +29,8 @@ namespace APIExcelValidator
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            
+            // Add dependency for our IFileValidator with ExcelValidator implementation
             services.AddScoped<IFileValidator, ExcelValidator>();
             
             // Add dependency for dotnet core to avoid NotSupportedException
