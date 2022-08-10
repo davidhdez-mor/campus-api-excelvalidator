@@ -25,7 +25,12 @@ namespace APIExcelValidator.Controllers
                 return BadRequest("Ningun archivo proporcioando");
 
             ExcelValidator excelValidator = new ExcelValidator();
-            excelValidator.Validate(file.OpenReadStream());
+            if (!excelValidator.Validate(file.OpenReadStream()))
+                return BadRequest("El archivo no es una hoja de calculo");
+
+            if (!excelValidator.ValidateDescription(file.OpenReadStream()))
+                return BadRequest("Error en la columna x y la fila y");
+            
             return Ok(file.Length);
         }
     }

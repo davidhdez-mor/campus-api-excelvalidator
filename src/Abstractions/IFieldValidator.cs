@@ -1,8 +1,10 @@
+using System.IO;
+
 namespace APIExcelValidator.Abstractions
 {
     public interface IFieldValidator
     {
-        public void ValidateDescription();
-        public void ValidateNumbers();
+        public bool ValidateDescription(Stream file);
+        public bool ValidateNumbers(Stream file);
     }
 }

@@ -5,6 +5,6 @@ namespace APIExcelValidator.Abstractions
 {
     public interface IFileValidator
     {
-        public void Validate(Stream file);
+        public bool Validate(Stream file);
     }
 }
