@@ -25,18 +25,19 @@ namespace APIExcelValidator.Controllers
         public async Task<IActionResult> OnLoadFile(IFormFile file)
         {
             // IFormFile file = HttpContext.Request.Form.Files.FirstOrDefault();
+            // Se puede mejorar: if's y reuisar el archivo
 
             if (file is null)
                 return BadRequest("El archivo esta vacio");
 
             if (!_fileValidator.Validate(file.OpenReadStream()))
-                return BadRequest(((ExcelValidator)_fileValidator).ErrorMessage);
+                return BadRequest(_fileValidator.ErrorMessage);
 
             if (!((IFieldValidator)_fileValidator).ValidateDescription(file.OpenReadStream()))
-                return BadRequest(((ExcelValidator)_fileValidator).ErrorMessage);
+                return BadRequest(_fileValidator.ErrorMessage);
 
             if (!((IFieldValidator)_fileValidator).ValidateNumbers(file.OpenReadStream()))
-                return BadRequest(((ExcelValidator)_fileValidator).ErrorMessage);
+                return BadRequest(_fileValidator.ErrorMessage);
 
             return Ok("El archivo es valido");
         }

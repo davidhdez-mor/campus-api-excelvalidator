@@ -1,5 +1,3 @@
-using System;
-using System.Data;
 using System.IO;
 using System.Text;
 using APIExcelValidator.Abstractions;
@@ -11,7 +9,6 @@ namespace APIExcelValidator.Implementations
 {
     public class ExcelValidator : IFileValidator, IFieldValidator
     {
-        private readonly IExcelTable _excelTable;
         private readonly ExcelReaderConfiguration _excelConfig;
         private readonly ExcelDataSetConfiguration _excelDataSetConfig;
         public string ErrorMessage { get; set; }
@@ -40,8 +37,6 @@ namespace APIExcelValidator.Implementations
             {
                 using (var excelFile = ExcelReaderFactory.CreateReader(file, _excelConfig))
                 {
-                    // Console.WriteLine(excelFile.Name);
-                    // Console.WriteLine(excelFile.ResultsCount);
                     return true;
                 }
             }
@@ -68,7 +63,7 @@ namespace APIExcelValidator.Implementations
 
                 try
                 {
-                    return ValidateRangeField.ValidateDescriptionFields(dataTable, match, 0, 1, fromIndex, toIndex);
+                    return dataTable.ValidateDescriptionByRange(match, 0, 1, fromIndex, toIndex);
                 }
                 catch (InvalidDescriptionTypeException ex)
                 {
@@ -96,10 +91,10 @@ namespace APIExcelValidator.Implementations
                 try
                 {
                     bool firstNumberRange =
-                        ValidateRangeField.ValidateNumberFromFields(dataTable, fromColIndex, toColIndex, fromRowIndex,
+                        dataTable.ValidateNumberByRange(fromColIndex, toColIndex, fromRowIndex,
                             toRowIndex);
                     bool secondNumberRange =
-                        ValidateRangeField.ValidateNumberFromFields(dataTable, 20, 22, fromRowIndex, toRowIndex);
+                        dataTable.ValidateNumberByRange(20, 22, fromRowIndex, toRowIndex);
 
                     return firstNumberRange && secondNumberRange;
                 }

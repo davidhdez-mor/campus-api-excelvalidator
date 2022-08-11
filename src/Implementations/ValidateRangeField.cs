@@ -6,7 +6,7 @@ namespace APIExcelValidator.Implementations
 {
     public static class ValidateRangeField
     {
-        public static bool ValidateDescriptionFields(DataTable table, string description, int fromColIndex,
+        public static bool ValidateDescriptionByRange(this DataTable table, string description, int fromColIndex,
             int toColindex,
             int fromRowIndex, int toRowIndex)
         {
@@ -25,7 +25,7 @@ namespace APIExcelValidator.Implementations
             return true;
         }
 
-        public static bool ValidateNumberFromFields(DataTable table, int fromColIndex, int toColIndex, int fromRowIndex,
+        public static bool ValidateNumberByRange(this DataTable table, int fromColIndex, int toColIndex, int fromRowIndex,
             int toRowIndex)
         {
             for (int col = fromColIndex; col <= toColIndex; col++)
