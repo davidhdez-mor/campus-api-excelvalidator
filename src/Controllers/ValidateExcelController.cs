@@ -18,28 +18,27 @@ namespace APIExcelValidator.Controllers
         public ValidateExcelController(IFileValidator fileValidator)
         {
             _fileValidator = fileValidator;
-
         }
-        
+
         // POST file api/ExcelValidator
         [HttpPost]
         public async Task<IActionResult> OnLoadFile(IFormFile file)
         {
             // IFormFile file = HttpContext.Request.Form.Files.FirstOrDefault();
-            
+
             if (file is null)
-                return BadRequest("No se envio nada o el archivo esta vacio");
-            
+                return BadRequest("El archivo esta vacio");
+
             if (!_fileValidator.Validate(file.OpenReadStream()))
-                return BadRequest("El archivo no es una hoja de calculo");
+                return BadRequest(((ExcelValidator)_fileValidator).ErrorMessage);
 
-            if (!((IFieldValidator) _fileValidator).ValidateDescription(file.OpenReadStream()))
-                return BadRequest("Error en la columna x y la fila y descripcion invalida");
-            
-            if (!((IFieldValidator) _fileValidator).ValidateNumbers(file.OpenReadStream()))
-                return BadRequest("Error en la columna x y la fila y: no es un numero");
+            if (!((IFieldValidator)_fileValidator).ValidateDescription(file.OpenReadStream()))
+                return BadRequest(((ExcelValidator)_fileValidator).ErrorMessage);
 
-            return Ok($"El archivo {file.Name} es valido");
+            if (!((IFieldValidator)_fileValidator).ValidateNumbers(file.OpenReadStream()))
+                return BadRequest(((ExcelValidator)_fileValidator).ErrorMessage);
+
+            return Ok("El archivo es valido");
         }
     }
 }

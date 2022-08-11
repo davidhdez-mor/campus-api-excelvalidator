@@ -3,6 +3,7 @@ using System.Data;
 using System.IO;
 using System.Text;
 using APIExcelValidator.Abstractions;
+using APIExcelValidator.Exceptions;
 using ExcelDataReader;
 using ExcelDataReader.Exceptions;
 
@@ -13,6 +14,7 @@ namespace APIExcelValidator.Implementations
         private readonly IExcelTable _excelTable;
         private readonly ExcelReaderConfiguration _excelConfig;
         private readonly ExcelDataSetConfiguration _excelDataSetConfig;
+        public string ErrorMessage { get; set; }
 
         public ExcelValidator()
         {
@@ -46,6 +48,7 @@ namespace APIExcelValidator.Implementations
             catch (HeaderException ex)
             {
                 // Console.WriteLine($"El archivo no es una hoja de calculo: {ex.Message}");
+                ErrorMessage = "El archivo no es una hoja de calculo";
                 return false;
             }
         }
@@ -63,62 +66,48 @@ namespace APIExcelValidator.Implementations
 
                 string match = "BANCO VE POR MAS, S.A. FIDEICO (UVCGLOBAL USD 630603 AMEX)";
 
-                for (int i = fromIndex; i <= toIndex; i++)
+                try
                 {
-                    string data = dataTable.Rows[i][0].ToString();
-
-                    if (data is not null && !data.Equals(match))
-                    {
-                        Console.Error.WriteLine($"Error en la columna A fila {i + 2}");
-                        return false;
-                    }
+                    return ValidateRangeField.ValidateDescriptionFields(dataTable, match, 0, 1, fromIndex, toIndex);
                 }
-            }
-
-            return true;
-        }
-
-        public bool ValidateRangeField(DataTable table, int fromColIndex, int toColIndex, int fromRowIndex, int toRowIndex)
-        {
-            for (int col = fromColIndex; col <= toColIndex; col++)
-            {
-                for (int row = fromRowIndex; row <= toRowIndex; row++)
+                catch (InvalidDescriptionTypeException ex)
                 {
-                    try
-                    {
-                        float value = float.Parse(table.Rows[row][col].ToString());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.Error.WriteLine($"Error en la columna {col} fila {row + 2}");
-                        return false;
-                    }
-                }
+                    ErrorMessage = ex.Message;
+                    return false;
+                } 
             }
-
-            return true;
         }
 
         public bool ValidateNumbers(Stream file)
         {
             using (var reader = ExcelReaderFactory.CreateReader(file, _excelConfig))
             {
-                int fromRowIndex = 4;
-                int toRowIndex = 37;
-
                 // K - P: 10 - 15
                 // U - W: 20 - 22
+                
+                int fromRowIndex = 4;
+                int toRowIndex = 37;
                 int fromColIndex = 10;
                 int toColIndex = 15;
 
                 var dataset = reader.AsDataSet(_excelDataSetConfig);
                 var dataTable = dataset.Tables[0];
 
-                bool firstNumberRange =
-                    ValidateRangeField(dataTable, fromColIndex, toColIndex, fromRowIndex, toRowIndex);
-                bool secondNumberRange = 
-                    ValidateRangeField(dataTable, 20, 22, fromRowIndex, toRowIndex);
-                return firstNumberRange && secondNumberRange;
+                try
+                {
+                    bool firstNumberRange =
+                        ValidateRangeField.ValidateNumberFromFields(dataTable, fromColIndex, toColIndex, fromRowIndex,
+                            toRowIndex);
+                    bool secondNumberRange =
+                        ValidateRangeField.ValidateNumberFromFields(dataTable, 20, 22, fromRowIndex, toRowIndex);
+
+                    return firstNumberRange && secondNumberRange;
+                }
+                catch (InvalidNumberTypeException ex)
+                {
+                    ErrorMessage = ex.Message;
+                    return false;
+                }
             }
         }
     }
